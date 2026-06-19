@@ -208,17 +208,17 @@ body {
 .poi-grid {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .poi-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   cursor: pointer;
   transition: var(--transition-smooth);
   position: relative;
@@ -238,19 +238,19 @@ body {
 /* POI Card Header */
 .poi-card-header {
   display: flex;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
 }
 
 .poi-logo-badge {
-  min-width: 44px;
-  height: 44px;
+  min-width: 34px;
+  height: 34px;
   background-color: rgba(0, 187, 166, 0.04);
   border: 1px solid rgba(0, 187, 166, 0.15);
-  border-radius: 12px;
+  border-radius: 8px;
   color: var(--color-gsm);
   font-weight: 800;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -319,13 +319,13 @@ body {
 .poi-progress-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 10px;
 }
 
 .progress-col {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .progress-header {

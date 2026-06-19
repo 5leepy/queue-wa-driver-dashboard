@@ -601,7 +601,7 @@ export default function Home() {
             <circle cx="7.5" cy="17.5" r="1.5" fill="currentColor" />
             <circle cx="16.5" cy="17.5" r="1.5" fill="currentColor" />
           </svg>
-          <span className="app-title">Antrean Driver</span>
+          <span className="app-title">Antrean POI GSM</span>
         </div>
         <div className="header-actions">
           <button 
@@ -630,11 +630,6 @@ export default function Home() {
 
       {/* MAIN CONTAINER */}
       <main className="app-main">
-        {/* Title area matching mockup in Indonesian */}
-        <div className="page-header">
-          <h2 className="page-title">Pangkalan Surabaya</h2>
-          <p className="page-subtitle">Pemantauan antrean terminal secara real-time</p>
-        </div>
 
         {loadingPois && pois.length === 0 ? (
           <div className="loading-container">
@@ -747,32 +742,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Metadata Row */}
-                  <div className="poi-meta-row">
-                    <div className="meta-item">
-                      {/* Clock Icon */}
-                      <svg className="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                      <div className="meta-details">
-                        <span className="meta-label">Rata Tunggu</span>
-                        <span className="meta-value">{poi.avgWaitFormatted || '0m'}</span>
-                      </div>
-                    </div>
-
-                    <div className="meta-item">
-                      {/* Stopwatch/Timer Icon */}
-                      <svg className="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 8 14" />
-                      </svg>
-                      <div className="meta-details">
-                        <span className="meta-label">Jam Ops</span>
-                        <span className="meta-value">{formatHour(poi.onlineHour)} - {formatHour(poi.offlineHour)}</span>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Metadata Row Removed for Compactness */}
                 </div>
               );
             })}

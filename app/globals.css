@@ -813,8 +813,9 @@ body {
   border-radius: 12px;
   padding: 10px 14px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 8px 12px;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -1326,4 +1327,113 @@ body {
 
 .guide-done-btn:active {
   transform: scale(0.98);
+}
+
+/* =========================================================
+   NEW IMPROVEMENTS (Batch 2)
+   ========================================================= */
+
+/* poi-grid-wrapper: proper flex column container */
+.poi-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Driver Position Badge on Home POI Cards */
+.driver-pos-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  margin-top: 10px;
+  padding-top: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  animation: fadeIn 0.35s ease-out;
+}
+
+.driver-pos-badge.standby {
+  color: var(--color-success);
+}
+
+.driver-pos-badge.tandon {
+  color: var(--color-tandon);
+}
+
+.driver-pos-star {
+  font-size: 0.85rem;
+}
+
+/* Real-time hull input validation */
+.pin-input.pin-valid {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.1);
+}
+
+.pin-input.pin-invalid {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 5px rgba(239, 68, 68, 0.08);
+}
+
+.pin-validation-hint {
+  width: 100%;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0 2px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.pin-validation-hint.ok {
+  color: var(--color-success);
+}
+
+.pin-validation-hint.err {
+  color: var(--color-danger);
+}
+
+/* Detail header refresh button */
+.detail-header-info {
+  flex: 1;
+}
+
+.detail-refresh-btn {
+  background-color: rgba(0, 187, 166, 0.06);
+  border: 1px solid rgba(0, 187, 166, 0.18);
+  border-radius: 8px;
+  color: var(--color-gsm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: var(--transition-smooth);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.detail-refresh-btn:active {
+  background-color: rgba(0, 187, 166, 0.15);
+  transform: scale(0.94);
+}
+
+.detail-refresh-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Detail view last-updated timestamp */
+.detail-last-updated {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 16px 4px 16px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
 }

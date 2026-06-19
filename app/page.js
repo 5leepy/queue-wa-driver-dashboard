@@ -508,8 +508,8 @@ export default function Home() {
     const locations = {
       PTC: 'Surabaya Barat',
       PCM: 'Surabaya Timur',
-      RP: 'Surabaya Pusat',
-      TP: 'Pusat Kota'
+      RP: 'Surabaya Selatan',
+      TP: 'Surabaya Pusat'
     };
     return locations[code] || 'Surabaya';
   };

@@ -46,6 +46,7 @@ body {
   max-width: 600px;
   margin: 0 auto;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
@@ -138,10 +139,10 @@ body {
 /* Main Content */
 .app-main {
   flex: 1;
-  padding: 16px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 /* Page Titles */
@@ -414,10 +415,10 @@ body {
 /* Footer Section */
 .app-footer {
   border-top: 1px solid var(--border-color);
-  padding: 16px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   background-color: var(--bg-primary);
 }
 

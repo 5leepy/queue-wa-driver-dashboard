@@ -45,14 +45,15 @@ body {
 .app-container {
   max-width: 600px;
   margin: 0 auto;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
   background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
   position: relative;
   border-left: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
+  overflow: hidden; /* prevent outer scroll; only app-main scrolls */
 }
 
 /* Header */
@@ -143,6 +144,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth momentum scroll on iOS */
 }
 
 /* Page Titles */

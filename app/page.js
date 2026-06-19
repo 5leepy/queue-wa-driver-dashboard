@@ -698,12 +698,31 @@ export default function Home() {
                 <span>Gagal memperbarui data. Menampilkan data terakhir.</span>
               </div>
             )}
+
+            {/* Single driver position banner — shown once above all cards */}
+            {pinnedHull && (() => {
+              const found = pois.find(p => driverPositions[p.id]);
+              if (!found) return null;
+              const pos = driverPositions[found.id];
+              return (
+                <div
+                  className={`driver-home-banner ${pos.type}`}
+                  onClick={() => handlePoiClick(found.id)}
+                >
+                  <span className="driver-home-banner-icon">⭐</span>
+                  <span className="driver-home-banner-text">
+                    {pinnedHull} — <strong>#{pos.pos} {pos.type === 'standby' ? 'Standby' : 'Tandon'}</strong> di {found.code}
+                  </span>
+                  <span className="driver-home-banner-cta">Lihat →</span>
+                </div>
+              );
+            })()}
+
             <div className="poi-grid">
               {pois.map((poi) => {
                 const open = isPoiOpen(poi);
                 const standbyPercentage = Math.min(100, Math.round((poi.standbyCount / Math.max(1, poi.maxStandby)) * 100));
                 const tandonPercentage = Math.min(100, Math.round((poi.tandonCount / Math.max(1, poi.maxTandon)) * 100));
-                const driverPos = driverPositions[poi.id];
 
                 return (
                   <div key={poi.id} className="poi-card" onClick={() => handlePoiClick(poi.id)}>
@@ -746,14 +765,6 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Driver Position Badge (only visible when pinned hull is in this queue) */}
-                    {pinnedHull && driverPos && (
-                      <div className={`driver-pos-badge ${driverPos.type}`}>
-                        <span className="driver-pos-star">⭐</span>
-                        <span>Anda: #{driverPos.pos} {driverPos.type === 'standby' ? 'Standby' : 'Tandon'}</span>
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -837,7 +848,7 @@ export default function Home() {
               <svg className="location-icon" style={{ color: 'var(--text-accent)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
-              <span>Driver Saya:</span>
+              <span>No. Lambung:</span>
             </div>
             <div className="pin-input-wrapper">
               <input

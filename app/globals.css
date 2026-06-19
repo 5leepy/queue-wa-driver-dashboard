@@ -1497,3 +1497,74 @@ body {
   opacity: 0.7;
   flex-shrink: 0;
 }
+
+/* =========================================================
+   WhatsApp Group Link Cards (inside guide modal)
+   ========================================================= */
+.wa-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0 4px 0;
+}
+
+.wa-link-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--bg-primary);
+  border: 1px solid rgba(37, 211, 102, 0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: var(--transition-smooth);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wa-link-card:active {
+  background-color: rgba(37, 211, 102, 0.06);
+  border-color: rgba(37, 211, 102, 0.35);
+  transform: scale(0.985);
+}
+
+.wa-link-badge {
+  background: linear-gradient(135deg, var(--color-gsm), #10b981);
+  color: #040605;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  border-radius: 8px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+}
+
+.wa-link-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wa-link-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.wa-link-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.wa-link-arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0.85;
+}
+

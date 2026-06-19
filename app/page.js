@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { track } from '@vercel/analytics';
 
 export default function Home() {
   const [pois, setPois] = useState([]);
@@ -13,6 +14,26 @@ export default function Home() {
   const [tempHullInput, setTempHullInput] = useState('');
   const [showGuide, setShowGuide] = useState(false);
   
+  // Track action custom helper for both Vercel & Google Analytics
+  const trackAction = useCallback((eventName, params = {}) => {
+    const enrichedParams = {
+      ...params,
+      driver_hull: pinnedHull || 'unknown',
+    };
+    try {
+      track(eventName, enrichedParams);
+    } catch (err) {
+      console.warn('Vercel Analytics track error:', err);
+    }
+    try {
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', eventName, enrichedParams);
+      }
+    } catch (err) {
+      console.warn('Google Analytics track error:', err);
+    }
+  }, [pinnedHull]);
+
   const [wsStatus, setWsStatus] = useState('connecting'); // 'connecting' | 'connected' | 'disconnected'
   const [loadingPois, setLoadingPois] = useState(true);
   const [loadingQueues, setLoadingQueues] = useState(false);
@@ -78,6 +99,7 @@ export default function Home() {
   const handleSaveHullInput = (val) => {
     const trimmed = val.trim();
     if (!trimmed) {
+      trackAction('clear_pinned_hull');
       setPinnedHull('');
       if (typeof window !== 'undefined') {
         localStorage.removeItem('pinnedHull');
@@ -86,6 +108,7 @@ export default function Home() {
     }
     const formatted = formatHullNumber(trimmed);
     if (formatted) {
+      trackAction('save_pinned_hull', { hull_number: formatted });
       setPinnedHull(formatted);
       if (typeof window !== 'undefined') {
         localStorage.setItem('pinnedHull', formatted);
@@ -105,6 +128,7 @@ export default function Home() {
     }
     const formatted = formatHullNumber(val);
     if (formatted) {
+      trackAction('save_onboarding_hull', { hull_number: formatted });
       setPinnedHull(formatted);
       if (typeof window !== 'undefined') {
         localStorage.setItem('pinnedHull', formatted);
@@ -117,6 +141,7 @@ export default function Home() {
 
   // Onboarding Skip Handler
   const handleOnboardingSkip = () => {
+    trackAction('skip_onboarding');
     if (typeof window !== 'undefined') {
       localStorage.setItem('skipOnboarding', 'true');
     }
@@ -512,17 +537,29 @@ export default function Home() {
 
   // Handle POI Card Click
   const handlePoiClick = (poiId) => {
+    const clickedPoi = pois.find(p => p.id === poiId);
+    if (clickedPoi) {
+      trackAction('view_pangkalan_detail', {
+        poi_id: poiId,
+        poi_code: clickedPoi.code,
+        poi_name: clickedPoi.name
+      });
+    }
     window.location.hash = `#/poi/${poiId}`;
   };
 
   // Handle Back Button Click
   const handleBackClick = () => {
+    trackAction('click_back_to_home');
     window.location.hash = '';
   };
 
   // Handle Manual Refresh Button
   const handleManualRefresh = () => {
     if (isRefreshing) return;
+    trackAction('click_manual_refresh', {
+      active_poi_code: activePoi?.code || 'none'
+    });
     fetchPois(true);
     if (activePoiId) {
       fetchPoiQueues(activePoiId);
@@ -569,7 +606,10 @@ export default function Home() {
         <div className="header-actions">
           <button 
             className="info-button" 
-            onClick={() => setShowGuide(true)} 
+            onClick={() => {
+              trackAction('click_help_guide');
+              setShowGuide(true);
+            }} 
             title="Panduan Antrean WhatsApp"
           >
             i
@@ -613,7 +653,10 @@ export default function Home() {
             <p className="offline-desc">
               Gagal menghubungkan ke server antrean. Pastikan perangkat Anda terhubung ke internet atau coba lagi beberapa saat lagi.
             </p>
-            <button className="offline-retry-btn" onClick={() => fetchPois(false)} disabled={isRefreshing}>
+            <button className="offline-retry-btn" onClick={() => {
+              trackAction('click_offline_retry');
+              fetchPois(false);
+            }} disabled={isRefreshing}>
               {isRefreshing ? (
                 <>
                   <span className="spinner-mini"></span>
@@ -825,6 +868,7 @@ export default function Home() {
                 <button 
                   className="pin-clear-btn" 
                   onClick={() => {
+                    trackAction('clear_pinned_hull');
                     setPinnedHull('');
                     setTempHullInput('');
                     if (typeof window !== 'undefined') {
@@ -995,11 +1039,17 @@ export default function Home() {
 
       {/* GUIDE MODAL OVERLAY */}
       {showGuide && (
-        <div className="guide-overlay" onClick={() => setShowGuide(false)}>
+        <div className="guide-overlay" onClick={() => {
+          trackAction('close_help_guide', { method: 'overlay_click' });
+          setShowGuide(false);
+        }}>
           <div className="guide-card" onClick={(e) => e.stopPropagation()}>
             <div className="guide-header">
               <h3 className="guide-title">ℹ️ Panduan Antrean WhatsApp</h3>
-              <button className="guide-close-btn" onClick={() => setShowGuide(false)}>×</button>
+              <button className="guide-close-btn" onClick={() => {
+                trackAction('close_help_guide', { method: 'close_button' });
+                setShowGuide(false);
+              }}>×</button>
             </div>
             <div className="guide-body">
               <p className="guide-subtitle-text">
@@ -1031,7 +1081,10 @@ export default function Home() {
                 *Harap pastikan nomor WhatsApp Anda sudah terdaftar di sistem koordinator.
               </div>
             </div>
-            <button className="guide-done-btn" onClick={() => setShowGuide(false)}>Mengerti</button>
+            <button className="guide-done-btn" onClick={() => {
+              trackAction('close_help_guide', { method: 'understand_button' });
+              setShowGuide(false);
+            }}>Mengerti</button>
           </div>
         </div>
       )}

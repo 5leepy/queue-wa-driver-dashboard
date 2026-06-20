@@ -42,13 +42,23 @@ function formatHullNumber(val) {
 // QueueCard sub-component (DRY - used for both Standby and Tandon lists)
 // =============================================================================
 
-function QueueCard({ item, index, pinnedHull, tick }) {
-  const isFirst = index === 0;
+function QueueCard({ item, index, pinnedHull, tick, queueType }) {
+  // Standby: highlight #1 (position-first) and #2 (position-second)
+  // Tandon:  no position highlight at all
+  const isFirst  = queueType === 'standby' && index === 0;
+  const isSecond = queueType === 'standby' && index === 1;
+  const isTandon = queueType === 'tandon';
   const isPinned = pinnedHull && item.hullNumber.trim().toLowerCase() === pinnedHull.trim().toLowerCase();
-  // tick is consumed as a prop so re-renders propagate, no-op otherwise
   void tick;
   return (
-    <div className={`queue-card ${isFirst ? 'position-first' : ''} ${item.isResting ? 'resting' : ''} ${isPinned ? 'pinned-driver' : ''}`}>
+    <div className={[
+      'queue-card',
+      isFirst  ? 'position-first'  : '',
+      isSecond ? 'position-second' : '',
+      isTandon ? 'tandon-card'     : '',
+      item.isResting ? 'resting' : '',
+      isPinned ? 'pinned-driver' : '',
+    ].filter(Boolean).join(' ')}>
       <div className="queue-card-left">
         <span className="queue-pos">#{index + 1}</span>
         <span className="queue-hull">{item.hullNumber}</span>
@@ -912,7 +922,7 @@ export default function Home() {
                   ) : (
                     <div className="queue-list">
                       {activePoiQueues.standby.map((item, index) => (
-                        <QueueCard key={item.id} item={item} index={index} pinnedHull={pinnedHull} tick={tick} />
+                        <QueueCard key={item.id} item={item} index={index} pinnedHull={pinnedHull} tick={tick} queueType="standby" />
                       ))}
                     </div>
                   )}
@@ -934,7 +944,7 @@ export default function Home() {
                   ) : (
                     <div className="queue-list">
                       {activePoiQueues.tandon.map((item, index) => (
-                        <QueueCard key={item.id} item={item} index={index} pinnedHull={pinnedHull} tick={tick} />
+                        <QueueCard key={item.id} item={item} index={index} pinnedHull={pinnedHull} tick={tick} queueType="tandon" />
                       ))}
                     </div>
                   )}

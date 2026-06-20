@@ -90,6 +90,7 @@ export default function Home() {
   const [onboardingError, setOnboardingError] = useState('');
   const [tempHullInput, setTempHullInput] = useState('');
   const [showGuide, setShowGuide] = useState(false);
+  const [showHullModal, setShowHullModal] = useState(false);
   const [driverPositions, setDriverPositions] = useState({}); // { [poiId]: {pos, type} | null }
   const [lastQueueUpdated, setLastQueueUpdated] = useState('');
 
@@ -139,8 +140,43 @@ export default function Home() {
     }
   }, []);
 
-  // Sync tempHullInput when pinnedHull changes (e.g. from onboarding)
+  // Sync tempHullInput when pinnedHull changes (e.g. from onboarding or modal save)
   useEffect(() => { setTempHullInput(pinnedHull); }, [pinnedHull]);
+
+  // Open hull edit modal — pre-fill with current value
+  const openHullModal = (e) => {
+    if (e) e.stopPropagation();
+    setTempHullInput(pinnedHull);
+    setShowHullModal(true);
+  };
+
+  // Save from hull modal
+  const handleHullModalSave = () => {
+    const trimmed = tempHullInput.trim();
+    if (!trimmed) {
+      trackAction('clear_pinned_hull');
+      setPinnedHull('');
+      if (typeof window !== 'undefined') localStorage.removeItem('pinnedHull');
+      setShowHullModal(false);
+      return;
+    }
+    const formatted = formatHullNumber(trimmed);
+    if (formatted) {
+      trackAction('save_pinned_hull', { hull_number: formatted });
+      setPinnedHull(formatted);
+      if (typeof window !== 'undefined') localStorage.setItem('pinnedHull', formatted);
+      setShowHullModal(false);
+    }
+  };
+
+  // Clear from hull modal
+  const handleHullModalClear = () => {
+    trackAction('clear_pinned_hull');
+    setPinnedHull('');
+    setTempHullInput('');
+    if (typeof window !== 'undefined') localStorage.removeItem('pinnedHull');
+    setShowHullModal(false);
+  };
 
   // ---------------------------------------------------------------------------
   // Real-time hull input validation hint
@@ -709,24 +745,42 @@ export default function Home() {
               </div>
             )}
 
-            {/* Single driver position banner — shown once above all cards */}
-            {pinnedHull && (() => {
+            {/* Driver position banner OR set-lambung prompt */}
+            {pinnedHull ? (() => {
               const found = pois.find(p => driverPositions[p.id]);
-              if (!found) return null;
-              const pos = driverPositions[found.id];
+              if (found) {
+                const pos = driverPositions[found.id];
+                return (
+                  <div className={`driver-home-banner ${pos.type}`} onClick={() => handlePoiClick(found.id)}>
+                    <span className="driver-home-banner-icon">⭐</span>
+                    <span className="driver-home-banner-text">
+                      {pinnedHull} — <strong>#{pos.pos} {pos.type === 'standby' ? 'Standby' : 'Tandon'}</strong> di {found.code}
+                    </span>
+                    <button
+                      className="driver-home-banner-edit"
+                      onClick={openHullModal}
+                      title="Ubah nomor lambung"
+                    >✏️</button>
+                  </div>
+                );
+              }
+              // Hull set but not found in any active queue
               return (
-                <div
-                  className={`driver-home-banner ${pos.type}`}
-                  onClick={() => handlePoiClick(found.id)}
-                >
+                <div className="driver-home-banner idle" onClick={openHullModal}>
                   <span className="driver-home-banner-icon">⭐</span>
                   <span className="driver-home-banner-text">
-                    {pinnedHull} — <strong>#{pos.pos} {pos.type === 'standby' ? 'Standby' : 'Tandon'}</strong> di {found.code}
+                    {pinnedHull} — <span style={{ opacity: 0.6, fontWeight: 400 }}>tidak ada di antrean aktif</span>
                   </span>
-                  <span className="driver-home-banner-cta">Lihat →</span>
+                  <button className="driver-home-banner-edit" onClick={openHullModal} title="Ubah nomor lambung">✏️</button>
                 </div>
               );
-            })()}
+            })() : (
+              <button className="set-hull-prompt" onClick={openHullModal}>
+                <span>⭐</span>
+                <span>Tap untuk set No. Lambung Anda</span>
+                <span className="set-hull-arrow">→</span>
+              </button>
+            )}
 
             <div className="poi-grid">
               {pois.map((poi) => {
@@ -852,43 +906,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* PIN DRIVER INPUT PANEL */}
-          <div className="pin-input-container">
-            <div className="pin-label">
-              <svg className="location-icon" style={{ color: 'var(--text-accent)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-              <span>No. Lambung:</span>
-            </div>
-            <div className="pin-input-wrapper">
-              <input
-                type="text"
-                className={`pin-input ${hullValidationStatus ? (hullValidationStatus.ok ? 'pin-valid' : 'pin-invalid') : ''}`}
-                placeholder="No. Lambung (contoh: 006)"
-                value={tempHullInput}
-                onChange={(e) => setTempHullInput(e.target.value)}
-                onBlur={() => handleSaveHullInput(tempHullInput)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleSaveHullInput(tempHullInput); }}
-              />
-              {tempHullInput && (
-                <button
-                  className="pin-clear-btn"
-                  onClick={() => {
-                    trackAction('clear_pinned_hull');
-                    setPinnedHull('');
-                    setTempHullInput('');
-                    if (typeof window !== 'undefined') localStorage.removeItem('pinnedHull');
-                  }}
-                >×</button>
-              )}
-            </div>
-            {/* Real-time validation hint */}
-            {hullValidationStatus && (
-              <span className={`pin-validation-hint ${hullValidationStatus.ok ? 'ok' : 'err'}`}>
-                {hullValidationStatus.ok ? `✓ ${hullValidationStatus.formatted}` : '⚠ Format salah. Cth: 006 atau 1234'}
-              </span>
-            )}
-          </div>
 
           <div className="queue-list-container" style={{ overflowY: 'auto' }}>
             {error && (
@@ -1029,6 +1046,60 @@ export default function Home() {
               <div className="guide-footer-note">*Tap kartu untuk bergabung ke grup WhatsApp pangkalan.</div>
             </div>
             <button className="guide-done-btn" onClick={() => { trackAction('close_help_guide', { method: 'understand_button' }); setShowGuide(false); }}>Tutup</button>
+          </div>
+        </div>
+      )}
+
+      {/* HULL EDIT MODAL */}
+      {showHullModal && (
+        <div className="hull-modal-overlay" onClick={() => setShowHullModal(false)}>
+          <div className="hull-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="hull-modal-header">
+              <span className="hull-modal-title">⭐ No. Lambung</span>
+              <button className="guide-close-btn" onClick={() => setShowHullModal(false)}>×</button>
+            </div>
+            <p className="hull-modal-desc">
+              Nomor lambung digunakan untuk menyorot posisi Anda di daftar antrean dan mengaktifkan notifikasi suara.
+            </p>
+            <div className="hull-modal-input-wrapper">
+              <input
+                type="text"
+                inputMode="numeric"
+                className={`hull-modal-input ${
+                  tempHullInput
+                    ? (formatHullNumber(tempHullInput) ? 'pin-valid' : 'pin-invalid')
+                    : ''
+                }`}
+                placeholder="Contoh: 006 atau 1234"
+                value={tempHullInput}
+                onChange={(e) => setTempHullInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleHullModalSave(); }}
+                autoFocus
+              />
+              {tempHullInput && (
+                <span className={`pin-validation-hint ${
+                  formatHullNumber(tempHullInput) ? 'ok' : 'err'
+                }`}>
+                  {formatHullNumber(tempHullInput)
+                    ? `✓ ${formatHullNumber(tempHullInput)}`
+                    : '⚠ Format salah. Contoh: 006 atau 1234'}
+                </span>
+              )}
+            </div>
+            <div className="hull-modal-buttons">
+              {pinnedHull && (
+                <button className="hull-modal-btn-clear" onClick={handleHullModalClear}>
+                  Hapus
+                </button>
+              )}
+              <button
+                className="hull-modal-btn-save"
+                onClick={handleHullModalSave}
+                disabled={!!tempHullInput && !formatHullNumber(tempHullInput)}
+              >
+                Simpan
+              </button>
+            </div>
           </div>
         </div>
       )}
